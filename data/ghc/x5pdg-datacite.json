@@ -1,0 +1,86 @@
+{
+  "alternateIdentifiers": [
+    {
+      "alternateIdentifier": "https://osf.io/x5pdg",
+      "alternateIdentifierType": "URL"
+    }
+  ],
+  "contributors": [
+    {
+      "contributorName": {
+        "contributorName": "Center for Open Science",
+        "nameType": "Organizational"
+      },
+      "contributorType": "HostingInstitution",
+      "nameIdentifier": {
+        "nameIdentifier": "https://ror.org/05d5mza29",
+        "nameIdentifierScheme": "ROR"
+      }
+    }
+  ],
+  "creators": [
+    {
+      "creatorName": {
+        "creatorName": "Brendan Kennedy",
+        "nameType": "Personal"
+      },
+      "nameIdentifier": {
+        "nameIdentifier": "https://osf.io/u5vfr",
+        "nameIdentifierScheme": "URL"
+      }
+    }
+  ],
+  "dates": [
+    {
+      "date": "2021-03-03",
+      "dateType": "Created"
+    },
+    {
+      "date": "2021-03-03",
+      "dateType": "Updated"
+    }
+  ],
+  "descriptions": [],
+  "fundingReferences": [],
+  "identifier": {
+    "identifier": "https://osf.io/x5pdg",
+    "identifierType": "URL"
+  },
+  "publicationYear": "2021",
+  "publisher": "OSF",
+  "relatedIdentifiers": [
+    {
+      "relatedIdentifier": "10.17605/OSF.IO/EDUA3",
+      "relatedIdentifierType": "DOI",
+      "relationType": "IsPartOf"
+    }
+  ],
+  "relatedItems": [
+    {
+      "publicationYear": "2018",
+      "publisher": "OSF",
+      "relatedItemIdentifier": {
+        "relatedItemIdentifier": "10.17605/OSF.IO/EDUA3",
+        "relatedItemIdentifierType": "DOI"
+      },
+      "relatedItemType": "Text",
+      "relationType": "IsPartOf",
+      "titles": [
+        {
+          "title": "The Gab Hate Corpus"
+        }
+      ]
+    }
+  ],
+  "resourceType": {
+    "resourceType": "File",
+    "resourceTypeGeneral": "Text"
+  },
+  "rightsList": [],
+  "subjects": [],
+  "titles": [
+    {
+      "title": "ghc_train.tsv"
+    }
+  ]
+}
