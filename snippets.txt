@@ -215,3 +215,68 @@ model.config.num_hidden_layers += new_layers_to_add
 # Freeze the original layers
 for param in model.roberta.encoder.layer[:-new_layers_to_add].parameters():
     param.requires_grad = False
+	
+	
+	
+	
+	
+	
+	
+	
+	
+class BinarySoftDiceLoss(nn.Module):
+    def __init__(self, p=1, smooth=1, weight=None):
+        super(BinarySoftDiceLoss, self).__init__()
+        self.p = p
+        self.smooth = smooth
+        self.weight = None if weight is None else torch.tensor(weight)
+
+    def forward(self, logits, label):
+        '''
+        args: logits: tensor of shape (BS,)
+        args: label: tensor of shape (BS,)
+        '''
+
+        # Convert logits to probabilities
+        probs = torch.sigmoid(logits)
+
+        # Compute loss
+        numer = torch.sum(probs * label)
+        denom = torch.sum(probs.pow(self.p) + label.pow(self.p))
+
+        if self.weight is not None:
+            numer *= self.weight
+            denom *= self.weight
+
+        loss = 1 - (2 * numer + self.smooth) / (denom + self.smooth)
+        
+        return loss
+
+
+    
+criterion = BinarySoftDiceLoss()
+
+
+
+
+
+
+
+
+
+
+        print(f"Train Loss: {avg_train_loss}, Val Loss: {avg_val_loss}, Accuracy: {accuracy}")
+        # test different treshholds
+        for tresh in np.arange(0.3, 0.75, 0.05):
+            f1 = f1_score(all_labels.numpy(), all_predictions_raw.numpy() >= tresh, average='macro')
+            print(f"tresh: {tresh}, f1: {f1}")
+
+        
+
+        print(f"First predictions:")
+        i = 0
+        for y_pred, y in zip(all_predictions_raw, all_labels):
+            print(f"y_pred: {y_pred.item()}, y: {y}")
+            i += 1
+            if i > 5:
+                break
