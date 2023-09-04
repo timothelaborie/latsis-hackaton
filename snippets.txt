@@ -71,3 +71,147 @@ class PrintLearningRateCallback(TrainerCallback):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from datasets import load_metric
+
+def compute_metrics(p):
+    metric = load_metric("accuracy")
+    metric_f1 = load_metric("f1")
+    accuracy = metric.compute(predictions=p.predictions.argmax(-1), references=p.label_ids)
+    f1 = metric_f1.compute(predictions=p.predictions.argmax(-1), references=p.label_ids, average='macro')
+    return {"accuracy": accuracy["accuracy"], "f1": f1}
+
+
+from torch.optim.lr_scheduler import LambdaLR
+class EpochBasedLRScheduler(LambdaLR):
+    def __init__(self, optimizer, lr_per_epoch, len_train_loader, last_epoch=-1):
+        self.lr_per_epoch = lr_per_epoch
+        self.len_train_loader = len_train_loader
+        super(EpochBasedLRScheduler, self).__init__(optimizer, self.lr_lambda, last_epoch=last_epoch)
+
+    def lr_lambda(self, current_step: int):
+        current_epoch = current_step // self.len_train_loader
+        if current_epoch < len(self.lr_per_epoch):
+            return self.lr_per_epoch[current_epoch] / self.base_lrs[0]
+        return 1.0
+
+
+
+optimizer = AdamW(model.parameters(), lr=1e-5)
+def train(model, lr_per_epoch, train_dataset):
+    global optimizer, val_dataset
+
+    training_args = TrainingArguments(
+        output_dir='./results',
+        num_train_epochs=len(lr_per_epoch),
+        per_device_train_batch_size=4,
+        per_device_eval_batch_size=4,
+        warmup_steps=0,
+        weight_decay=0.01,
+        logging_steps=len(train_dataset) // 4,
+        #lr_scheduler_type='constant',
+        #learning_rate=1e-9,
+        report_to='none',
+        evaluation_strategy='epoch',
+        save_strategy='no',
+    )
+
+    len_train_loader = len(train_dataset) // training_args.per_device_train_batch_size
+    scheduler = EpochBasedLRScheduler(optimizer, lr_per_epoch, len_train_loader)
+
+    model.train()
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=val_dataset,
+        compute_metrics=compute_metrics,
+        optimizers=(optimizer, scheduler),
+    )
+    trainer.train()
+    model.eval()
+
+
+
+train(model, [1e-5,1e-5,1e-5], pretrain_dataset)
+train(model, [1e-5,1e-5,1e-5], train_dataset)
+torch.save(model, '/kaggle/working/model.pt' if kaggle else 'model.pt')
+    
+
+    # model = torch.load('/kaggle/working/model.pt' if kaggle else 'model.pt')
+    # model.eval()
+
+
+
+
+
+
+
+
+
+from datasets import load_metric
+# Function to compute metrics
+def compute_metrics(predictions, labels):
+    metric = load_metric("accuracy")
+    metric_f1 = load_metric("f1")
+    accuracy = metric.compute(predictions=predictions.argmax(-1), references=labels)
+    f1 = metric_f1.compute(predictions=predictions.argmax(-1), references=labels, average='macro')
+    return {"accuracy": accuracy["accuracy"], "f1": f1}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+new_layers_to_add = 3
+
+from transformers.models.xlm_roberta.modeling_xlm_roberta import XLMRobertaLayer
+
+# Get the configuration of one existing layer to use as a template
+template_config = model.config
+
+# Manually create new layers using the template configuration
+new_layers = [XLMRobertaLayer(template_config) for _ in range(new_layers_to_add)]
+
+# Initialize the new layers with random weights
+for layer in new_layers:
+    layer.apply(model._init_weights)
+
+# Append new layers to the existing stack of layers
+model.roberta.encoder.layer.extend(new_layers)
+
+# Update the config to reflect the new number of layers
+model.config.num_hidden_layers += new_layers_to_add
+
+# Freeze the original layers
+for param in model.roberta.encoder.layer[:-new_layers_to_add].parameters():
+    param.requires_grad = False
