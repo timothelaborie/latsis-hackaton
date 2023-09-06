@@ -51,9 +51,9 @@ from transformers import TrainingArguments, Trainer, AutoTokenizer, XLMRobertaTo
 
 # model_name = 'xlm-roberta-base'
 # model_name = "microsoft/mdeberta-v3-base"
-model_name = 'aari1995/German_Semantic_STS_V2'
+# model_name = 'aari1995/German_Semantic_STS_V2'
 # model_name = "deepset/gelectra-base"
-# model_name = "PM-AI/sts_paraphrase_xlm-roberta-base_de-en"
+model_name = "PM-AI/sts_paraphrase_xlm-roberta-base_de-en"
 # model_name = "intfloat/multilingual-e5-large"
 # model_name = "deutsche-telekom/gbert-large-paraphrase-euclidean"
 # model_name = "ZurichNLP/swissbert"
@@ -255,17 +255,17 @@ for param in model.parameters():
     param.requires_grad = False
 for param in model.classifier.parameters():
     param.requires_grad = True
-for i in range(-3, 0):
-    # for param in model.roberta.encoder.layer[i].parameters():
-    for param in model.bert.encoder.layer[i].parameters():
+for i in range(-4, 0):
+    for param in model.roberta.encoder.layer[i].parameters():
+    # for param in model.bert.encoder.layer[i].parameters():
     # for param in model.deberta.encoder.layer[i].parameters():
     # for param in model.electra.encoder.layer[i].parameters():
         param.requires_grad = True
 optimizer = AdamW([param for param in model.parameters() if param.requires_grad], lr=1e-5)
 
-train(model, [1e-9], warmup_dataset, val_dataset)
-train(model, [1e-5], pretrain_dataset, val_dataset)
-train(model, [1e-5, 1e-5, 1e-5, 1e-5, 2e-6, 1e-6], train_dataset, val_dataset)
+train(model, [1e-9], warmup_dataset, None)
+# train(model, [1e-5], pretrain_dataset, None)
+train(model, [1e-5, 1e-5, 2e-6, 1e-6], train_dataset, val_dataset)
 
 # train(model, [1e-9], warmup_dataset, val_dataset)
 # train(model, [1e-5, 1e-5, 1e-5, 1e-5, 2e-6, 1e-6], full_dataset, None)
@@ -279,8 +279,8 @@ train(model, [1e-5, 1e-5, 1e-5, 1e-5, 2e-6, 1e-6], train_dataset, val_dataset)
 #     os.makedirs('ensemble')
 # if not os.path.exists('ensemble/' + model_name):
 #     os.makedirs('ensemble/' + model_name)
-# torch.save(model, f'/kaggle/working/ensemble/{model_name}/model.pt' if kaggle else f'{model_name}.pt')
-# torch.save(tokenizer, f'/kaggle/working/ensemble/{model_name}/tokenizer.pt' if kaggle else f'{model_name}_tokenizer.pt')
+torch.save(model, 'semantic.pt')
+torch.save(tokenizer, 'semantic_tokenizer.pt')
 # print("saved")
 
 # %%
